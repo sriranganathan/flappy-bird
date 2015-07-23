@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Game</title>
+</head>
+
+<body>
+<canvas id="canvas" width="1200" height="600" style="border:1px solid black"></canvas>
+<br>
+<div id="gameover"></div>
+<script>
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+var frame;
+var over=0;
+var bird =
+{
+x:25,
+y:275,
+height:50,
+width:50,
+color:'black',
+vy:10,
+draw : function()
+{
+ctx.fillStyle = this.color;
+ctx.fillRect(this.x, this.y,this.width,this.height);
+}
+};
+var block_parameters = 
+{
+height:canvas.height,
+width:100,
+color:'green',
+number:5,
+open_height:150,
+blocks:[],
+draw : function()
+{
+for(var i=0;i<this.number;i++)
+{
+ctx.fillStyle = this.color;
+ctx.fillRect(this.blocks[i].x, this.blocks[i].y,this.width,this.height);
+ctx.fillStyle = "white";
+ctx.fillRect(this.blocks[i].x, this.blocks[i].open_y,this.width,this.open_height);
+}
+}
+};
+window.addEventListener('keydown',function(e){
+var keypressed = event.which || event.keyCode;
+if(keypressed==38)
+{
+if(bird.y+bird.vy>=0)
+bird.y-=2*bird.vy;
+}
+});
+function draw() {
+  ctx.clearRect(0,0, canvas.width, canvas.height);
+  bird.y+=bird.vy/5;
+
+   for(var i=0;i<block_parameters.number;i++)
+  { block_parameters.blocks[i].x+= block_parameters.blocks[i].velocity_x;}
+  for(var i=0;i<block_parameters.number;i++)
+  {
+  if(block_parameters.blocks[i].x<=-300) 
+  {
+	block_parameters.blocks[i].x=canvas.width;
+	 block_parameters.blocks[i].open_y = 100+Math.random()*(canvas.height-400);
+  }
+  }
+  var cur=-1;
+  for(var i=0;i<block_parameters.number;i++)
+  {
+		if(block_parameters.blocks[i].x<=75&&block_parameters.blocks[i].x+block_parameters.width>=25 )
+		cur=i;
+  }
+  if(cur!=-1)
+  if(bird.y<=block_parameters.blocks[cur].open_y||bird.y+bird.height>=block_parameters.blocks[cur].open_y+block_parameters.open_height)
+  {over=1;}
+  if(bird.y+bird.height>=canvas.height)
+  over=1;
+  block_parameters.draw();
+  bird.draw();
+  if(over==0)
+  frame = window.requestAnimationFrame(draw);
+  else
+  gameover();
+  }
+
+window.addEventListener('load', function(){
+  for(var i=0;i<block_parameters.number;i++)
+  { 
+   block_parameters.blocks[i] = {};
+   block_parameters.blocks[i].velocity_x=-2;
+   block_parameters.blocks[i].x=(block_parameters.width+200)*i+300;
+   block_parameters.blocks[i].y=0;
+   block_parameters.blocks[i].open_y = 100+Math.random()*(canvas.height-200);
+   
+   
+  }
+  block_parameters.draw();
+  bird.draw();
+   start = new Date().getTime();
+frame = window.requestAnimationFrame(draw);
+});
+
+
+function gameover()
+{
+
+var end = new Date().getTime();
+var time = Math.ceil((end-start)/1000);
+var score = Math.floor((time-4)/2 +1);
+if(score<0)
+score=0;
+document.getElementById("gameover").innerHTML="<h3> Game over!!!. Your Score is "+score+"</h3>";
+}
+
+
+
+
+</script>
+</body>
+</html>
